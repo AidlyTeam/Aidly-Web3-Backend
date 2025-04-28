@@ -1,0 +1,14 @@
+app:
+  devMode: true
+
+solana:
+  network:
+    mainnet: "https://api.mainnet-beta.solana.com"
+    devnet: "https://api.devnet.solana.com"
+    testnet: "https://api.testnet.solana.com"
+  keypairPath: "/app/Wallet"
+  keypairName: "admin-wallet.json"
+
+http:
+  host: "localhost"
+  port: "8082"
