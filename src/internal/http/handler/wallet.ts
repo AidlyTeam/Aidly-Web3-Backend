@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Services from "../../service/services"; 
+import Services from "../../service/services";
 import { ResponseData } from '../response/response';
 import ErrorHandler from '../error/error';
 
@@ -19,20 +19,20 @@ class WalletHandler {
         if (!name) {
             return this.errorHandler.BadRequest("Name parameter is required.");
         }
-        
+
         const msg = this.services.WalletService().Hello(name);
-        
+
         return this.errorHandler.OK("Hello Success", msg);
     }
 
     GetBalance = async (req: Request, res: Response): Promise<Response> => {
         this.errorHandler.SetRes(res);
-    
+
         const walletAddress: string | undefined = req.params.walletAddress;
-    
+
         try {
             const balance = await this.services.WalletService().GetBalance(walletAddress);
-    
+
             return this.errorHandler.OK("Balance fetched successfully", balance);
         } catch (error) {
             if (error instanceof ResponseData) {
@@ -44,12 +44,12 @@ class WalletHandler {
 
     GetAccountInfo = async (req: Request, res: Response): Promise<Response> => {
         this.errorHandler.SetRes(res);
-    
+
         const walletAddress: string | undefined = req.params.walletAddress;
-    
+
         try {
             const balance = await this.services.WalletService().GetAccountInfo(walletAddress);
-    
+
             return this.errorHandler.OK("Account information fetched successfully", balance);
         } catch (error) {
             if (error instanceof ResponseData) {
@@ -58,8 +58,8 @@ class WalletHandler {
             return this.errorHandler.InternalServerError("Unkown Error", error);
         }
     }
-    
-    Airdrop = async (req:Request, res:Response): Promise<Response> => {
+
+    Airdrop = async (req: Request, res: Response): Promise<Response> => {
         this.errorHandler.SetRes(res);
 
         const { walletAddress, solAmount } = req.body;
@@ -76,6 +76,30 @@ class WalletHandler {
         }
     }
 
+    VerifyTransaction = async (req: Request, res: Response): Promise<Response> => {
+        this.errorHandler.SetRes(res);
+
+        const { txid, donatorWalletAddress, campaignWalletAddress } = req.body;
+
+        if (!txid || !donatorWalletAddress || !campaignWalletAddress) {
+            return this.errorHandler.BadRequest("txid, donatorWalletAddress, and campaignWalletAddress are required.");
+        }
+
+        try {
+            const isValid = await this.services.WalletService().VerifyTransaction(
+                txid,
+                donatorWalletAddress,
+                campaignWalletAddress
+            );
+
+            return this.errorHandler.OK("Transaction verification result", { isValid });
+        } catch (error) {
+            if (error instanceof ResponseData) {
+                return this.errorHandler.Format(error);
+            }
+            return this.errorHandler.InternalServerError("Unknown Error", error);
+        }
+    }
 }
 
 export default WalletHandler;

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import  Handler from '../handler/handler'; 
+import Handler from '../handler/handler';
 
 // This Class For Specifig Routes
 class WalletRoutes {
@@ -25,8 +25,12 @@ class WalletRoutes {
         })
 
         router.post('/airdrop', (req: Request, res: Response) => {
-            this.handler.WalletHandler().Airdrop(req,res)
+            this.handler.WalletHandler().Airdrop(req, res)
         })
+
+        router.post("/verify", (req: Request, res: Response) => {
+            this.handler.WalletHandler().VerifyTransaction(req, res)
+        });
 
         return router;
     }
