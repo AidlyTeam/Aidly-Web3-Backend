@@ -79,17 +79,18 @@ class WalletHandler {
     VerifyTransaction = async (req: Request, res: Response): Promise<Response> => {
         this.errorHandler.SetRes(res);
 
-        const { txid, donatorWalletAddress, campaignWalletAddress } = req.body;
+        const { txid, donatorWalletAddress, campaignWalletAddress, recivedSOL } = req.body;
 
-        if (!txid || !donatorWalletAddress || !campaignWalletAddress) {
-            return this.errorHandler.BadRequest("txid, donatorWalletAddress, and campaignWalletAddress are required.");
+        if (!txid || !donatorWalletAddress || !campaignWalletAddress || recivedSOL === undefined) {
+            return this.errorHandler.BadRequest("txid, donatorWalletAddress, campaignWalletAddress, and recivedSOL are required.");
         }
 
         try {
             const isValid = await this.services.WalletService().VerifyTransaction(
                 txid,
                 donatorWalletAddress,
-                campaignWalletAddress
+                campaignWalletAddress,
+                recivedSOL
             );
 
             return this.errorHandler.OK("Transaction verification result", { isValid });
@@ -99,7 +100,7 @@ class WalletHandler {
             }
             return this.errorHandler.InternalServerError("Unknown Error", error);
         }
-    }
+    };
 }
 
 export default WalletHandler;
