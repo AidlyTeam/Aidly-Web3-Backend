@@ -86,6 +86,12 @@ class WalletHandler {
         }
 
         try {
+            const parsedRecivedSOL = parseFloat(recivedSOL);
+
+            if (isNaN(parsedRecivedSOL)) {
+                return this.errorHandler.BadRequest("recivedSOL must be a valid number.");
+            }
+
             const isValid = await this.services.WalletService().VerifyTransaction(
                 txid,
                 donatorWalletAddress,
