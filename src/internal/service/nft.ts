@@ -28,7 +28,7 @@ class NFTService {
                 .use(keypairIdentity(adminKeypair))
                 .use(irysStorage({
                     address: uri,
-                    providerUrl: this.network, // Solana devnet URL
+                    providerUrl: this.network,
                     timeout: 60000,
                 }));
 
@@ -37,8 +37,9 @@ class NFTService {
                 symbol,
                 uri,
                 sellerFeeBasisPoints: sellerFeeBasisPoints,
+            }, {
+                commitment: "finalized"
             });
-
 
             return nft;
         } catch (error) {
@@ -63,9 +64,7 @@ class NFTService {
                 .use(keypairIdentity(senderKeypair));
 
             // Get NFT metadata and token info
-            const nftMetadata = await metaplex.nfts().findByMint({
-                mintAddress: new PublicKey(nftAddress)
-            });
+            const nftMetadata = await this.waitForMintAccount(metaplex, new PublicKey(nftAddress));
 
             // Prepare TransferNftInput parameters
             const transferInput = {
@@ -97,6 +96,17 @@ class NFTService {
         }
     }
 
+    async waitForMintAccount(metaplex: Metaplex, mintAddress: PublicKey, retries = 5, delay = 1000) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                const nft = await metaplex.nfts().findByMint({ mintAddress });
+                return nft;
+            } catch (e) {
+                console.log(`Retry ${i + 1}/${retries} - Waiting for mint account...`);
+                await new Promise(res => setTimeout(res, delay));
+            }
+        }
+        throw new Error("Mint account did not appear after retries.");
+    }
 }
-
 export default NFTService
